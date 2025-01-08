@@ -2,7 +2,11 @@ import { ajv } from "./data-validation";
 import READTHEDOCS_LOGO_WORDMARK from "./images/logo-wordmark-light.svg";
 import READTHEDOCS_LOGO from "./images/logo-light.svg";
 import { library, icon } from "@fortawesome/fontawesome-svg-core";
-import { faCodeBranch, faLanguage } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCodeBranch,
+  faLanguage,
+  faCircle,
+} from "@fortawesome/free-solid-svg-icons";
 import { html, nothing, render, LitElement } from "lit";
 import { classMap } from "lit/directives/class-map.js";
 import { default as objectPath } from "object-path";
@@ -70,12 +74,31 @@ export class FlyoutElement extends LitElement {
   renderHeader() {
     library.add(faCodeBranch);
     library.add(faLanguage);
+    library.add(faCircle);
     const iconCodeBranch = icon(faCodeBranch, {
       classes: ["icon"],
     });
     const iconLanguage = icon(faLanguage, {
       classes: ["icon"],
     });
+
+    let buildStatus = nothing;
+    const buildState = this.config.builds.current.state.code;
+    const buildSuccess = this.config.builds.current.success;
+    let buildStatusClass = "build-status-gray";
+    if (buildState === "finished" && buildSuccess) {
+      buildStatusClass = "build-status-green";
+    } else if (buildState === "finished" && !buildSuccess) {
+      buildStatusClass = "build-status-red";
+    } else {
+      buildStatusClass = "build-status-yellow";
+    }
+    buildStatus = html`<span
+      class="build-status ${buildStatusClass}"
+      title="State: ${buildState}. Success: ${buildSuccess}"
+      >${icon(faCircle).node[0]}</span
+    >`;
+
     let version = nothing;
     if (
       this.config.projects.current.versioning_scheme !==
@@ -97,7 +120,7 @@ export class FlyoutElement extends LitElement {
     return html`
       <header @click="${this._toggleOpen}">
         <img class="logo" src="${this.readthedocsLogo}" alt="Read the Docs" />
-        ${translation} ${version}
+        ${translation} ${version} ${buildStatus}
       </header>
     `;
   }

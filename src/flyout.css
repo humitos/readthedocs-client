@@ -84,11 +84,34 @@ header > span svg.icon {
   vertical-align: middle;
 }
 
+header > span.build-status {
+  width: var(
+    --readthedocs-flyout-header-font-size,
+    calc(var(--addons-flyout-font-size) * 1.125)
+  );
+}
+
 header > img.logo {
   text-align: center;
   max-width: 106px;
   max-height: 22px;
   margin-right: 10px;
+}
+
+.build-status-gray {
+  color: gray;
+}
+
+.build-status-green {
+  color: green;
+}
+
+.build-status-red {
+  color: red;
+}
+
+.build-status-yellow {
+  color: yellow;
 }
 
 main {
