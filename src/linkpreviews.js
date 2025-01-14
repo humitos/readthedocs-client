@@ -1,13 +1,7 @@
 import { html, nothing, render, LitElement } from "lit";
 import styleSheet from "./linkpreviews.css";
 
-import {
-  AddonBase,
-  domReady,
-  CLIENT_VERSION,
-  IS_TESTING,
-  docTool,
-} from "./utils";
+import { AddonBase, CLIENT_VERSION, IS_TESTING, docTool } from "./utils";
 import { EVENT_READTHEDOCS_ROOT_DOM_CHANGED } from "./events";
 import {
   computePosition,

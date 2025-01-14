@@ -11,7 +11,6 @@ import * as filetreediff from "./filetreediff";
 import * as customscript from "./customscript";
 import { default as objectPath } from "object-path";
 import {
-  domReady,
   isEmbedded,
   IS_PRODUCTION,
   setupLogging,
@@ -38,20 +37,17 @@ export function setup() {
   ];
 
   return new Promise((resolve) => {
-    domReady
-      .then(() => {
-        setupLogging();
+    setupLogging();
 
-        let sendUrlParam = false;
-        for (const addon of addons) {
-          if (addon.requiresUrlParam()) {
-            sendUrlParam = true;
-            break;
-          }
-        }
+    let sendUrlParam = false;
+    for (const addon of addons) {
+      if (addon.requiresUrlParam()) {
+        sendUrlParam = true;
+        break;
+      }
+    }
 
-        return getReadTheDocsConfig(sendUrlParam);
-      })
+    getReadTheDocsConfig(sendUrlParam)
       .then((config) => {
         const loadWhenEmbedded = objectPath.get(
           config,
