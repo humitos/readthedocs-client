@@ -129,6 +129,66 @@ export function getReadTheDocsConfig(sendUrlParam) {
   });
 }
 
+export async function getReadTheDocsConfigUsingAPIv3(sendUrlParam) {
+  const defaultApiUrl = _getApiUrl(sendUrlParam, ADDONS_API_VERSION);
+  const addons = await (await fetch(defaultApiUrl)).json();
+
+  const projectResponse = fetch(
+    addons.readthedocs.urls.api.v3.projects.current,
+  );
+  const translationsResponse = fetch(
+    addons.readthedocs.urls.api.v3.projects.translations,
+  );
+
+  const versionResponse = fetch(
+    addons.readthedocs.urls.api.v3.versions.current,
+  );
+  const activeVersionsResponse = fetch(
+    addons.readthedocs.urls.api.v3.versions.active,
+  );
+  const buildResponse = fetch(addons.readthedocs.urls.api.v3.builds.current);
+  const filetreediffResponse = fetch(
+    addons.readthedocs.urls.api.v3.filetreediff,
+  );
+
+  const responses = await Promise.all([
+    projectResponse,
+    translationsResponse,
+    versionResponse,
+    activeVersionsResponse,
+    buildResponse,
+    filetreediffResponse,
+  ]);
+
+  const [project, translations, version, activeVersions, build, filetreediff] =
+    await Promise.all(responses.map((response) => response.json()));
+
+  Object.assign(addons, {
+    builds: {
+      current: build,
+    },
+    projects: {
+      current: project,
+      translations: translations.results,
+    },
+    versions: {
+      active: activeVersions.results,
+      current: version,
+    },
+  });
+
+  Object.assign(addons["addons"]["filetreediff"], filetreediff);
+
+  // Trigger the addons data ready CustomEvent to with the data the user is expecting.
+  dispatchEvent(
+    EVENT_READTHEDOCS_ADDONS_DATA_READY,
+    document,
+    new ReadTheDocsEventData(addons),
+  );
+
+  return addons;
+}
+
 function dispatchEvent(eventName, element, data) {
   const event = new CustomEvent(eventName, { detail: data });
   element.dispatchEvent(event);
