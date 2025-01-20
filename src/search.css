@@ -30,7 +30,7 @@
   background: var(--readthedocs-search-footer-code-background-color, #fff);
   padding: 2px 5px;
   border: solid 1px var(--readthedocs-search-footer-code-border-color, #e1e4e5);
-  color: #333;
+  color: var(--readthedocs-search-footer-code-color, #333);
   white-space: pre-wrap;
   word-wrap: break-word;
   font-size: 0.875em;
@@ -95,7 +95,7 @@
 :host > div form > label {
   font-size: 1.15em;
   padding-left: 10px;
-  color: #333;
+  color: var(--readthedocs-search-input-label-color, #333);
 }
 
 :host > div form label svg {
@@ -114,6 +114,7 @@
   width: 100%;
   padding: 6px;
   line-height: 1;
+  color: var(--readthedocs-search-input-color, black);
 }
 
 :host > div .results {
@@ -155,7 +156,7 @@ div.hit-block .hit-block-heading-container .close-icon {
   width: 1em;
   padding-right: 10px;
   margin-bottom: 15px;
-  color: #333;
+  color: var(--readthedocs-search-result-section-icon-color, #333);
 }
 
 button.close-icon {
@@ -193,7 +194,7 @@ div.hit-block .hit-block-heading-container svg {
 
 :host > div .results a.hit:hover,
 :host > div .results .hit .active {
-  background-color: rgb(245, 245, 245);
+  background-color: var(--readthedocs-search-result-section-hover-color, rgb(245, 245, 245));
 }
 
 :host > div .results h2 {
@@ -202,14 +203,14 @@ div.hit-block .hit-block-heading-container svg {
   margin-bottom: 15px;
   margin-top: 0;
   font-size: 1.15em;
-  color: black;
+  color: var(--readthedocs-search-result-section-heading-color, black);
   border-bottom: 1px solid
     var(--readthedocs-search-result-section-border-color, #a0a0a0);
   line-height: inherit;
 }
 
 :host > div .results h2:hover {
-  border-bottom-color: black;
+  border-bottom-color: var(--readthedocs-search-result-section-hover-border-color, black);
 }
 
 :host > div .results a.hit > div {
@@ -230,7 +231,7 @@ div.hit-block .hit-block-heading-container svg {
 :host > div .results .hit .content {
   margin: 0;
   text-decoration: none;
-  color: black;
+  color: var(--readthedocs-search-result-section-content-color, black);
   font-size: 15px;
   display: block;
   margin-bottom: 5px;
@@ -263,7 +264,7 @@ div.hit-block .hit-block-heading-container svg {
     --readthedocs-search-footer-background-color,
     rgb(234, 234, 234)
   );
-  color: #404040;
+  color: var(--readthedocs-search-footer-color, #404040);
 }
 
 :host > div .credits {
