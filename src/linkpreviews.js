@@ -273,7 +273,9 @@ export class LinkPreviewsElement extends LitElement {
 
   _handleRootDOMChanged = (e) => {
     // Trigger the setup again since the DOM has changed
-    this.setupTooltips();
+    if (this.config) {
+      this.setupTooltips();
+    }
   };
 
   connectedCallback() {

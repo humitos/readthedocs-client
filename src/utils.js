@@ -214,6 +214,9 @@ export function setupHistoryEvents() {
     for (const methodName of ["pushState", "replaceState"]) {
       const originalMethod = history[methodName];
       history[methodName] = function () {
+        // Save the from URL to compare against before triggering the event.
+        const fromURL = new URL(window.location.href);
+
         const result = originalMethod.apply(this, arguments);
 
         // Dispatch the event only when the third argument (url) is passed.
@@ -222,9 +225,21 @@ export function setupHistoryEvents() {
         // https://developer.mozilla.org/en-US/docs/Web/API/History/pushState
         // https://developer.mozilla.org/en-US/docs/Web/API/History/replaceState
         if (arguments.length === 3) {
-          const event = new Event(EVENT_READTHEDOCS_URL_CHANGED);
-          event.arguments = arguments;
-          dispatchEvent(event);
+          const toURL = arguments[2];
+
+          // TODO: we can't import this here -- it has to be at the top.
+          // We can't import it at the top due to circular dependencies.
+          // I'm using the hardcoded name for now.
+          //
+          // import { DOCDIFF_URL_PARAM } from "./docdiff";
+          toURL.searchParams.delete("readthedocs-diff");
+
+          // Dispatch the event only if the new URL is not just the DOCDIFF_URL_PARAM added.
+          if (toURL.href !== fromURL.href) {
+            const event = new Event(EVENT_READTHEDOCS_URL_CHANGED);
+            event.arguments = arguments;
+            dispatchEvent(event);
+          }
         }
 
         return result;
