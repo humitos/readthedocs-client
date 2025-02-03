@@ -294,14 +294,11 @@ export class NotificationElement extends LitElement {
       <div>
         ${iconFlask.node[0]}
         <div class="title">
-          This is the <span>latest development version</span>
-          ${this.renderCloseButton()}
+          This is the latest development version ${this.renderCloseButton()}
         </div>
         <div class="content">
-          Some features may not yet be available in the published stable
-          version. Read the
-          <a href="${this.urls.stable}">stable version of this documentation</a
-          >.
+          Some features may not yet be available in the
+          <a href="${this.urls.stable}">stable version</a>.
         </div>
       </div>
     `;
@@ -322,10 +319,8 @@ export class NotificationElement extends LitElement {
           ${this.renderCloseButton()}
         </div>
         <div class="content">
-          You may be reading an old version of this documentation. Read the
-          <a href="${this.urls.stable}"
-            >latest stable version of this documentation</a
-          >.
+          Refer to the <a href="${this.urls.stable}">stable version</a> for the
+          most current documentation.
         </div>
       </div>
     `;
@@ -348,7 +343,7 @@ export class NotificationElement extends LitElement {
         <div class="content">
           See the
           <a href="${addUtmParameters(this.urls.build, "notification")}"
-            >build's detail page</a
+            >build detail page</a
           >
           or
           <a href="${this.urls.external}"

@@ -118,6 +118,10 @@
             expect(title.innerText).to.be.equal(
               "This may be an old version of this documentation",
             );
+            const content = element.shadowRoot.querySelector("div.content");
+            expect(content.innerHTML).to.include(
+              '<a href="https://project.readthedocs.io/en/stable/section/page.html">'
+            );
           });
 
           it("on latest version (multiple_versions_with_translations)", async () => {
@@ -129,29 +133,14 @@
             // We need to wait for the element to renders/updates before querying it
             await elementUpdated(element);
 
-            expect(element).shadowDom.to.equal(`
-<div>
-  <div class="title">
-    This is the
-    <span>
-      latest development version
-    </span>
-    <a
-      class="right"
-      href="#"
-    >
-    </a>
-  </div>
-  <div class="content">
-    Some features may not yet be available in the published stable
-          version. Read the
-    <a href="https://project.readthedocs.io/en/stable/section/page.html">
-      stable version of this documentation
-    </a>
-    .
-  </div>
-</div>
-      `);
+            const title = element.shadowRoot.querySelector("div.title");
+            expect(title.innerText).to.be.equal(
+              "This is the latest development version"
+            );
+            const content = element.shadowRoot.querySelector("div.content");
+            expect(content.innerHTML).to.include(
+              '<a href="https://project.readthedocs.io/en/stable/section/page.html">'
+            );
           });
 
           it("on latest version (multiple_versions_without_translations)", async () => {
@@ -165,28 +154,14 @@
             // We need to wait for the element to renders/updates before querying it
             await elementUpdated(element);
 
-            expect(element).shadowDom.to.equal(`
-<div>
-  <div class="title">
-    This is the
-    <span>
-      latest development version
-    </span>
-    <a
-      class="right"
-      href="#"
-    >
-    </a>
-  </div>
-  <div class="content">
-    Some features may not yet be available in the published stable
-          version. Read the
-    <a href="https://project.readthedocs.io/en/stable/section/page.html">
-      stable version of this documentation
-    </a>
-    .
- </div>
-`);
+            const title = element.shadowRoot.querySelector("div.title");
+            expect(title.innerText).to.be.equal(
+              "This is the latest development version"
+            );
+            const content = element.shadowRoot.querySelector("div.content");
+            expect(content.innerHTML).to.include(
+              '<a href="https://project.readthedocs.io/en/stable/section/page.html">'
+            );
           });
 
           it("on default version when stable is available", async () => {
@@ -230,6 +205,10 @@
             const title = element.shadowRoot.querySelector("div.title");
             expect(title.innerText).to.be.equal(
               "This page was created from a pull request build",
+            );
+            const content = element.shadowRoot.querySelector("div.content");
+            expect(content.innerHTML).to.include(
+              '<a href="https://app.readthedocs.org/project/project/builds/?utm_source=project&amp;utm_content=notification">build detail page</a>'
             );
           });
 
