@@ -28,6 +28,11 @@ describe("FileTreeDiff addon", () => {
             },
           },
         },
+        versions: {
+          current: {
+            type: "external",
+          },
+        },
       }),
     ).to.be.false;
   });
@@ -43,6 +48,11 @@ describe("FileTreeDiff addon", () => {
               modified: [],
               deleted: [],
             },
+          },
+        },
+        versions: {
+          current: {
+            type: "external",
           },
         },
       }),

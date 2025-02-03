@@ -1,6 +1,7 @@
 import { default as fetch } from "unfetch";
 import {
-  EVENT_READTHEDOCS_ADDONS_DATA_READY,
+  EVENT_READTHEDOCS_ADDONS_USER_DATA_READY,
+  EVENT_READTHEDOCS_ADDONS_INTERNAL_DATA_READY,
   ReadTheDocsEventData,
 } from "./events";
 import {
@@ -108,6 +109,12 @@ export function getReadTheDocsConfig(sendUrlParam) {
         return response.json();
       })
       .then((data) => {
+        return dispatchEvent(
+          EVENT_READTHEDOCS_ADDONS_INTERNAL_DATA_READY,
+          document,
+          new ReadTheDocsEventData(data),
+        );
+
         // Trigger a new task here to hit the API again in case the version
         // request missmatchs the one the user expects.
         getReadTheDocsUserConfig(sendUrlParam).then((dataUser) => {
@@ -120,7 +127,7 @@ export function getReadTheDocsConfig(sendUrlParam) {
 
           // Trigger the addons data ready CustomEvent to with the data the user is expecting.
           return dispatchEvent(
-            EVENT_READTHEDOCS_ADDONS_DATA_READY,
+            EVENT_READTHEDOCS_ADDONS_USER_DATA_READY,
             document,
             new ReadTheDocsEventData(dataEvent),
           );

@@ -1,3 +1,1 @@
-import * as readthedocs from "./index";
-
-readthedocs.setup();
+import * as application from "./application";

@@ -93,6 +93,9 @@
   "readthedocs": {
     "analytics": {
       "code": "UA-12345"
+    },
+    "resolver": {
+      "filename": "/index.html"
     }
   },
   "addons": {

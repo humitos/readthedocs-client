@@ -303,22 +303,7 @@ export class LinkPreviewsAddon extends AddonBase {
     "http://v1.schemas.readthedocs.org/addons.linkpreviews.json";
   static addonEnabledPath = "addons.linkpreviews.enabled";
   static addonName = "LinkPreviews";
-
-  constructor(config) {
-    super();
-
-    // If there are no elements found, inject one
-    let elems = document.querySelectorAll("readthedocs-linkpreviews");
-    if (!elems.length) {
-      elems = [new LinkPreviewsElement()];
-      document.body.append(elems[0]);
-      elems[0].requestUpdate();
-    }
-
-    for (const elem of elems) {
-      elem.loadConfig(config);
-    }
-  }
+  static elementClass = LinkPreviewsElement;
 }
 
-customElements.define("readthedocs-linkpreviews", LinkPreviewsElement);
+customElements.define(LinkPreviewsElement.elementName, LinkPreviewsElement);

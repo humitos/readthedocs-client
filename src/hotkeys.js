@@ -123,22 +123,7 @@ export class HotKeysAddon extends AddonBase {
     "http://v1.schemas.readthedocs.org/addons.hotkeys.json";
   static addonEnabledPath = "addons.hotkeys.enabled";
   static addonName = "HotKeys";
-
-  constructor(config) {
-    super();
-
-    // TODO: is it possible to move this `constructor` to the `AddonBase` class?
-    let elems = document.querySelectorAll("readthedocs-hotkeys");
-    if (!elems.length) {
-      elems = [new HotKeysElement()];
-      document.body.append(elems[0]);
-      elems[0].requestUpdate();
-    }
-
-    for (const elem of elems) {
-      elem.loadConfig(config);
-    }
-  }
+  static elementClass = HotKeysElement;
 }
 
-customElements.define("readthedocs-hotkeys", HotKeysElement);
+customElements.define(HotKeysElement.elementName, HotKeysElement);

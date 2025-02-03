@@ -31,9 +31,14 @@ export class EthicalAdsAddon extends AddonBase {
   static addonEnabledPath = "addons.ethicalads.enabled";
   static addonName = "EthicalAds";
 
-  constructor(config) {
-    super();
+  loadConfig(config) {
     this.config = config;
+
+    // Do not add another ad if we already added one
+    if (document.querySelector(`#${AD_SCRIPT_ID}`) !== null) {
+      return;
+    }
+
     this.injectEthicalAds();
   }
 

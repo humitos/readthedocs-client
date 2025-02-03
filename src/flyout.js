@@ -12,7 +12,12 @@ import { classMap } from "lit/directives/class-map.js";
 import { default as objectPath } from "object-path";
 
 import styleSheet from "./flyout.css";
-import { AddonBase, addUtmParameters, getLinkWithFilename } from "./utils";
+import {
+  AddonBase,
+  addUtmParameters,
+  getLinkWithFilename,
+  docTool,
+} from "./utils";
 import { SPHINX, MKDOCS_MATERIAL } from "./constants";
 import {
   EVENT_READTHEDOCS_SEARCH_SHOW,
@@ -278,7 +283,10 @@ export class FlyoutElement extends LitElement {
     }
 
     const getVersionLink = (version) => {
-      const url = getLinkWithFilename(version.urls.documentation);
+      const url = getLinkWithFilename(
+        version.urls.documentation,
+        this.config.readthedocs.resolver.filename,
+      );
       const link = html`<a href="${url}">${version.slug}</a>`;
       return this.config.versions.current.slug == version.slug
         ? html`<strong>${link}</strong>`
@@ -301,7 +309,10 @@ export class FlyoutElement extends LitElement {
     }
 
     const getLanguageLink = (translation) => {
-      const url = getLinkWithFilename(translation.urls.documentation);
+      const url = getLinkWithFilename(
+        translation.urls.documentation,
+        this.config.readthedocs.resolver.filename,
+      );
       const link = html`<a href="${url}">${translation.language.code}</a>`;
       return this.config.projects.current.slug === translation.slug
         ? html`<strong>${link}</strong>`
@@ -396,25 +407,18 @@ export class FlyoutAddon extends AddonBase {
     "http://v1.schemas.readthedocs.org/addons.flyout.json";
   static addonEnabledPath = "addons.flyout.enabled";
   static addonName = "Flyout";
+  static elementClass = FlyoutElement;
 
-  constructor(config) {
-    super();
-
-    // If there are no elements found, inject one
-    let elems = document.querySelectorAll("readthedocs-flyout");
-    if (!elems.length) {
-      elems = [new FlyoutElement()];
-
-      // We cannot use `render(elems[0], document.body)` because there is a race conditions between all the addons.
-      // So, we append the web-component first and then request an update of it.
-      document.body.append(elems[0]);
-      elems[0].requestUpdate();
-    }
-
-    for (const elem of elems) {
-      elem.loadConfig(config);
-    }
+  static requiresUrlParam() {
+    // Flyout requires URL param for the feature "keep the same page when
+    // switching version". We need to know the URL path
+    // (``readthedocs.resolver.filename`` from the API or MEATA
+    // ``readthedocs-resolver-filename``) to be able to generate those URLs.
+    //
+    // NOTE: If we ever make this feature configurable and user disables it, we
+    // can adapt this code to return ``false`` in that case.
+    return docTool.isSinglePageApplication();
   }
 }
 
-customElements.define("readthedocs-flyout", FlyoutElement);
+customElements.define(FlyoutElement.elementName, FlyoutElement);

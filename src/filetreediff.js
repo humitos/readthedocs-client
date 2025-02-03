@@ -160,10 +160,9 @@ export class FileTreeDiffElement extends LitElement {
 /**
  * File Tree Diff addon
  *
- * UNDER DEVELOPMENT.
- *
- * Currently, this addon shows in the console all the file changed compared to
- * the LATEST version of the project.
+ * This addon shows a small UI element at the top-right with a selector listing
+ * all the "Added" and "Modified" files compared to the base version
+ * (configurable from project's setting in the WebUI).
  *
  * @param {Object} config - Addon configuration object
  */
@@ -172,22 +171,14 @@ export class FileTreeDiffAddon extends AddonBase {
     "http://v1.schemas.readthedocs.org/addons.filetreediff.json";
   static addonEnabledPath = "addons.filetreediff.enabled";
   static addonName = "File Tree Diff";
+  static elementClass = FileTreeDiffElement;
 
-  constructor(config) {
-    super();
-    this.config = config;
-
-    let elems = document.querySelectorAll("readthedocs-filetreediff");
-    if (!elems.length) {
-      elems = [new FileTreeDiffElement()];
-      document.body.append(elems[0]);
-      elems[0].requestUpdate();
-    }
-
-    for (const elem of elems) {
-      elem.loadConfig(config);
-    }
+  static isEnabled(config, httpStatus) {
+    return (
+      super.isEnabled(config, httpStatus) &&
+      config.versions.current.type === "external"
+    );
   }
 }
 
-customElements.define("readthedocs-filetreediff", FileTreeDiffElement);
+customElements.define(FileTreeDiffElement.elementName, FileTreeDiffElement);

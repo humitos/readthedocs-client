@@ -82,6 +82,34 @@ export class AddonBase {
   static addonLocalStorageKey = null;
   static enabledOnHttpStatus = [200];
 
+  constructor(config) {
+    // Store all the Read the Docs web component elements
+    this.elements = [];
+
+    // If the addon class defines a web component element, we query/instanciate it before initializing it.
+    if (this.constructor.elementClass !== undefined) {
+      // If there are no elements found, inject one
+      this.elements = document.querySelectorAll(
+        this.constructor.elementClass.elementName,
+      );
+      if (!this.elements.length) {
+        this.elements = [new this.constructor.elementClass()];
+
+        // We cannot use `render(this.elements[0], document.body)` because there is a race conditions between all the addons.
+        // So, we append the web-component first and then request an update of it.
+        document.body.append(this.elements[0]);
+      }
+    }
+
+    this.loadConfig(config);
+  }
+
+  loadConfig(config) {
+    for (const element of this.elements) {
+      element.loadConfig(config);
+    }
+  }
+
   /**
    * Validates the given configuration object against a predefined JSON schema.
    *
@@ -177,7 +205,7 @@ export class AddonBase {
  */
 export function setupHistoryEvents() {
   // Let's ensure that the history will be patched only once, so we create a Symbol to check by
-  const patchKey = Symbol.for("addons_history");
+  const patchKey = Symbol.for("addons-history");
 
   if (
     typeof history !== "undefined" &&
@@ -187,10 +215,18 @@ export function setupHistoryEvents() {
       const originalMethod = history[methodName];
       history[methodName] = function () {
         const result = originalMethod.apply(this, arguments);
-        const event = new Event(EVENT_READTHEDOCS_URL_CHANGED);
-        event.arguments = arguments;
 
-        dispatchEvent(event);
+        // Dispatch the event only when the third argument (url) is passed.
+        // Otherwise, we are triggering the event even then the URL hasn't changed.
+        //
+        // https://developer.mozilla.org/en-US/docs/Web/API/History/pushState
+        // https://developer.mozilla.org/en-US/docs/Web/API/History/replaceState
+        if (arguments.length === 3) {
+          const event = new Event(EVENT_READTHEDOCS_URL_CHANGED);
+          event.arguments = arguments;
+          dispatchEvent(event);
+        }
+
         return result;
       };
     }
@@ -299,17 +335,29 @@ export function getMetadataValue(name) {
  * Resulting URL: https://docs.readthedocs.io/en/latest/
  *
  */
-export function getLinkWithFilename(url) {
-  // Get the resolver's filename returned by the application (as HTTP header)
-  // and injected by Cloudflare Worker as a meta HTML tag
-  const metaFilename = getMetadataValue("readthedocs-resolver-filename");
+export function getLinkWithFilename(url, resolverFilename) {
+  if (!resolverFilename) {
+    if (docTool.isSinglePageApplication()) {
+      // SPA without ``resolverFilename``.
+      // Just a protection, this shouldn't happen.
+      return new URL(url);
+    } else {
+      // No SPA without ``resolverFilename``.
+      // Normal case for most of the documentation tools.
+      // Get the resolver's filename returned by the application (as HTTP header)
+      // and injected by Cloudflare Worker as a meta HTML tag
+      const resolverFilename = getMetadataValue(
+        "readthedocs-resolver-filename",
+      );
+    }
+  }
 
   // Keep only one trailing slash
   const base = url.replace(/\/+$/, "/");
 
   // 1. remove initial slash to make it relative to the base
   // 2. remove the trailing "index.html"
-  const filename = metaFilename
+  const filename = resolverFilename
     .replace(/\/index.html$/, "/")
     .replace(/^\//, "");
 
@@ -339,6 +387,8 @@ export class DocumentationTool {
     [SPHINX]: "a.internal",
     [FALLBACK_DOCTOOL]: ["p a"],
   };
+
+  static SINGLE_PAGE_APPLICATIONS = [VITEPRESS, MDBOOK, DOCUSAURUS, DOCSIFY];
 
   constructor() {
     this.documentationTool = this.getDocumentationTool();
@@ -491,6 +541,14 @@ export class DocumentationTool {
 
     // TODO: add the other known themes
     return null;
+  }
+
+  isSinglePageApplication() {
+    const isSPA = DocumentationTool.SINGLE_PAGE_APPLICATIONS.includes(
+      this.documentationTool,
+    );
+    console.log("isSinglePageApplication", isSPA);
+    return isSPA;
   }
 
   isAntora() {

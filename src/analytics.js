@@ -3,8 +3,7 @@
 import { default as fetch } from "unfetch";
 
 import { ajv } from "./data-validation";
-import { AddonBase } from "./utils";
-import { CLIENT_VERSION } from "./utils";
+import { AddonBase, CLIENT_VERSION } from "./utils";
 
 export const API_ENDPOINT = "/_/api/v2/analytics/";
 
@@ -27,8 +26,7 @@ export class AnalyticsAddon extends AddonBase {
   static addonName = "Analytics";
   static enabledOnHttpStatus = [200, 404];
 
-  constructor(config) {
-    super();
+  loadConfig(config) {
     this.config = config;
 
     // Only register pageviews on non-external versions

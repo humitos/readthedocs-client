@@ -700,25 +700,7 @@ export class SearchAddon extends AddonBase {
   static addonEnabledPath = "addons.search.enabled";
   static addonName = "Search";
   static enabledOnHttpStatus = [200, 404];
-
-  constructor(config) {
-    super();
-
-    // If there are no elements found, inject one
-    let elems = document.querySelectorAll("readthedocs-search");
-    if (!elems.length) {
-      elems = [new SearchElement()];
-
-      // We cannot use `render(elems[0], document.body)` because there is a race conditions between all the addons.
-      // So, we append the web-component first and then request an update of it.
-      document.body.append(elems[0]);
-      elems[0].requestUpdate();
-    }
-
-    for (const elem of elems) {
-      elem.loadConfig(config);
-    }
-  }
+  static elementClass = SearchElement;
 }
 
-customElements.define("readthedocs-search", SearchElement);
+customElements.define(SearchElement.elementName, SearchElement);

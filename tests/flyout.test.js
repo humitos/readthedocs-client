@@ -25,6 +25,11 @@ describe("Flyout addon", () => {
             versions: [],
           },
         },
+        readthedocs: {
+          resolver: {
+            filename: "/index.html",
+          },
+        },
         projects: {
           current: {
             slug: "project",
@@ -47,6 +52,11 @@ describe("Flyout addon", () => {
           addons: {
             flyout: {
               enabled: true,
+            },
+          },
+          readthedocs: {
+            resolver: {
+              filename: "/index.html",
             },
           },
           projects: {
@@ -92,6 +102,11 @@ describe("Flyout addon", () => {
             enabled: true,
           },
         },
+        readthedocs: {
+          resolver: {
+            filename: "/index.html",
+          },
+        },
         projects: {
           current: {
             slug: "project",
@@ -133,6 +148,11 @@ describe("Flyout addon", () => {
         addons: {
           flyout: {
             enabled: true,
+          },
+        },
+        readthedocs: {
+          resolver: {
+            filename: "/index.html",
           },
         },
         projects: {

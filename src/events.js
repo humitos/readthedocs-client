@@ -14,13 +14,22 @@ export const EVENT_READTHEDOCS_FLYOUT_HIDE = "readthedocs-flyout-hide";
 export const EVENT_READTHEDOCS_URL_CHANGED = "readthedocs-url-changed";
 
 /**
- * Event triggered when the Read the Docs data is ready to be consumed.
+ * Event triggered when the Read the Docs data is ready to be consumed by users.
  *
  * This is the event users subscribe to to make usage of Read the Docs data.
  * The object received is `ReadTheDocsEventData`.
  */
-export const EVENT_READTHEDOCS_ADDONS_DATA_READY =
+export const EVENT_READTHEDOCS_ADDONS_USER_DATA_READY =
   "readthedocs-addons-data-ready";
+
+/**
+ * Event triggered when the Read the Docs data is ready to be consumed internally.
+ *
+ * This is the event users subscribe to to make usage of Read the Docs data.
+ * The object received is `ReadTheDocsEventData`.
+ */
+export const EVENT_READTHEDOCS_ADDONS_INTERNAL_DATA_READY =
+  "readthedocs-addons-internal-data-ready";
 
 /**
  * Event triggered when any addons modifies the root DOM.
@@ -33,7 +42,7 @@ export const EVENT_READTHEDOCS_ROOT_DOM_CHANGED =
   "readthedocs-root-dom-changed";
 
 /**
- * Object to pass to user subscribing to `EVENT_READTHEDOCS_ADDONS_DATA_READY`.
+ * Object to pass to user subscribing to `EVENT_READTHEDOCS_ADDONS_*_DATA_READY`.
  *
  * This object allows us to have a better communication with the user.
  * Instead of passing the raw data, we pass this object and enforce them
@@ -61,14 +70,15 @@ export class ReadTheDocsEventData {
       "readthedocs-addons-api-version",
     );
     if (metadataAddonsAPIVersion === undefined) {
-      throw `Subscribing to '${EVENT_READTHEDOCS_ADDONS_DATA_READY}' requires defining the '<meta name="readthedocs-addons-api-version" content="${ADDONS_API_VERSION}" />' tag in the HTML.`;
+      throw `Subscribing to '${EVENT_READTHEDOCS_ADDONS_USER_DATA_READY}' requires defining the '<meta name="readthedocs-addons-api-version" content="${ADDONS_API_VERSION}" />' tag in the HTML.`;
     }
 
     this._initialized = true;
   }
 
-  data() {
-    if (!this._initialized) {
+  data(internal) {
+    // ``internal`` is used internally, to skip the META element check.
+    if (!this._initialized && !internal) {
       this.initialize();
     }
     return this._data;
