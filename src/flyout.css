@@ -13,31 +13,57 @@
 .container {
   position: fixed;
   max-width: var(--readthedocs-flyout-max-width, 25em);
-  width: auto;
   height: auto;
+  width: auto;
   max-height: calc(100% - 100px);
   overflow-y: auto;
   line-height: var(--addons-flyout-line-height);
 }
 
-.container.bottom-right {
+.container.closed {
+  height: 2.5rem;
+}
+
+.container.bottom-right:not(.inline) {
   right: 20px;
   bottom: 50px;
 }
 
-.container.bottom-left {
+.container.bottom-left:not(.inline) {
   left: 20px;
   bottom: 50px;
 }
 
-.container.top-left {
+.container.top-left:not(.inline) {
   left: 20px;
   top: 50px;
 }
 
-.container.top-right {
+.container.top-right:not(.inline) {
   right: 20px;
   top: 50px;
+}
+
+.container.inline {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  padding: 0 10px;
+  margin: 0;
+  position: relative;
+  display: inline-block;
+  overflow: visible;
+}
+
+.container.up.inline main {
+  top: unset;
+  bottom: 2.5rem;
+}
+
+.container.down.inline main {
+  top: 2.5rem;
+  bottom: unset;
 }
 
 :host > div {
@@ -116,7 +142,22 @@ main {
   margin-top: 5px;
 }
 
-main.closed {
+.container.inline main {
+  padding: 1em;
+  background-color: var(--readthedocs-flyout-background-color, rgb(39, 39, 37));
+
+  /* Remove the padding-left added in `.container.inline` */
+  margin-left: -10px;
+
+  /* Use full width minus 1em padding added on left and right in `.container.inline main` */
+  width: calc(100% - 2em);
+
+  position: absolute;
+  margin-top: 0;
+}
+
+main.closed,
+.container.inline main.closed {
   display: none;
 }
 
