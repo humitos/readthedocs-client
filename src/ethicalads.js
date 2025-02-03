@@ -191,13 +191,41 @@ export class EthicalAdsAddon extends AddonBase {
         if (elementToAppend) {
           elementToAppend.append(placement);
         }
-      } else if (window.innerWidth > 1300) {
-        // https://ethical-ad-client.readthedocs.io/en/latest/#stickybox
-        placement.setAttribute("data-ea-type", "image");
-        placement.setAttribute("data-ea-style", "stickybox");
-        this.addEaPlacementToElement(placement);
-        // `document.body` here is not too much relevant, since we are going to
-        // use this selector only for a floating stickybox ad
+
+        // Try fixed footer instead of stickybox as a default experience
+
+        // } else if (window.innerWidth > 1300) {
+        //   // https://ethical-ad-client.readthedocs.io/en/latest/#stickybox
+        //   placement.setAttribute("data-ea-type", "image");
+        //   placement.setAttribute("data-ea-style", "stickybox");
+        //   this.addEaPlacementToElement(placement);
+        //   // `document.body` here is not too much relevant, since we are going to
+        //   // use this selector only for a floating stickybox ad
+        //   const elementInsertBefore = document.body;
+        //   elementInsertBefore.insertBefore(
+        //     placement,
+        //     elementInsertBefore.lastChild,
+        //   );
+      } else if (window.innerWidth > 768) {
+        // Use fixed footer for smaller widths, but not mobile
+        // https://ethical-ad-client.readthedocs.io/en/latest/#fixedfooter
+        placement.setAttribute("data-ea-type", "text");
+        placement.setAttribute("data-ea-style", "fixedfooter");
+        placement.classList.add("ethical-fixedfooter");
+
+        // Add margin to content and footers to avoid hiding content
+        const root_node = document.querySelector(docTool.getRootSelector());
+        const footers = document.querySelectorAll("footer, .footer");
+
+        if (root_node) {
+          root_node.classList.add("ethical-fixedfooter-margin");
+        }
+
+        footers.forEach((footer) => {
+          footer.classList.add("ethical-fixedfooter-margin");
+        });
+
+        // Inject the actual ad
         const elementInsertBefore = document.body;
         elementInsertBefore.insertBefore(
           placement,
@@ -234,6 +262,11 @@ export class EthicalAdsAddon extends AddonBase {
   }
 
   elementAboveTheFold(element) {
+    // Return false if element doesn't exist
+    if (!element) {
+      return false;
+    }
+
     // Determine if this element would be above the fold.
     // If this is off screen, instead create an ad in the footer.
     // Assumes the ad would be AD_SIZE pixels high.
