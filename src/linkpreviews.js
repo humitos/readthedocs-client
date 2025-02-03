@@ -29,8 +29,11 @@ function setupTooltip(el, doctoolname, doctoolversion, selector) {
   const anchorElement = el;
   let relatedTooltip;
 
-  el.addEventListener("mouseenter", delayShowTooltip);
-  el.addEventListener("mouseleave", delayHideTooltip);
+  if (!el.hasEventListener) {
+    el.addEventListener("mouseenter", delayShowTooltip);
+    el.addEventListener("mouseleave", delayHideTooltip);
+    el.hasEventListener = true;
+  }
 
   let showTooltipTimeoutId = null;
   let hideTooltipTimeoutId = null;
@@ -153,7 +156,8 @@ function setupTooltip(el, doctoolname, doctoolversion, selector) {
       return relatedTooltip;
     }
 
-    const existingTooltip = anchorElement.parentElement.querySelector(
+    // Check if there is already a tooltip for this url
+    const existingTooltip = document.querySelector(
       `div[${TOOLTIP_DATA_HREF}="${anchorElement.href}"]`,
     );
     if (existingTooltip) {
@@ -171,8 +175,11 @@ function setupTooltip(el, doctoolname, doctoolversion, selector) {
       anchorElement.insertAdjacentElement("afterend", newTooltip);
       // Let's add event listeners on the tooltip as well, to prevent hiding, when
       // mouse moves away from the anchor element
-      newTooltip.addEventListener("mouseenter", cancelHideDelay);
-      newTooltip.addEventListener("mouseleave", delayHideTooltip);
+      if (!newTooltip.hasEventListener) {
+        newTooltip.addEventListener("mouseenter", cancelHideDelay);
+        newTooltip.addEventListener("mouseleave", delayHideTooltip);
+        newTooltip.hasEventListener = true;
+      }
       relatedTooltip = newTooltip;
       return newTooltip;
     }
