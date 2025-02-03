@@ -1,8 +1,11 @@
+import { library, icon } from "@fortawesome/fontawesome-svg-core";
+import { faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { html, nothing, LitElement } from "lit";
 import { default as objectPath } from "object-path";
 import styleSheet from "./filetreediff.css";
 import { DOCDIFF_URL_PARAM } from "./docdiff.js";
 import {
+  EVENT_READTHEDOCS_ROOT_DOM_CHANGED,
   EVENT_READTHEDOCS_DOCDIFF_ADDED_REMOVED_SHOW,
   EVENT_READTHEDOCS_DOCDIFF_HIDE,
 } from "./events";
@@ -10,12 +13,16 @@ import { hasQueryParam } from "./utils";
 
 import { AddonBase } from "./utils";
 
+const SCROLL_OFFSET_Y = 0.1;
+
 export class FileTreeDiffElement extends LitElement {
   static elementName = "readthedocs-filetreediff";
 
   static properties = {
     config: { state: true },
     docDiffEnabled: { state: true },
+    chunks: { state: true },
+    chunkIndex: { state: true },
   };
 
   static styles = styleSheet;
@@ -24,6 +31,42 @@ export class FileTreeDiffElement extends LitElement {
     super();
     this.config = null;
     this.docDiffEnabled = false;
+
+    this.chunkIndex = null;
+    this.chunks = [];
+    this.chunkTagSelector = [
+      // We may want to add more selectors here as we find them.
+      "h1",
+      "h2",
+      "h3",
+      "p",
+      "dl",
+      "table",
+      "pre",
+    ];
+    this.chunkPseudoSelector = [
+      ":has(.doc-diff-added)",
+      ":has(.doc-diff-removed)",
+    ];
+
+    this.chunkSelector = [];
+    for (let selector of this.chunkTagSelector) {
+      for (let pseudo of this.chunkPseudoSelector) {
+        this.chunkSelector.push(`${selector}${pseudo}`);
+      }
+    }
+    this.chunkSelector = this.chunkSelector.join(", ");
+    console.log(this.chunkSelector);
+
+    library.add(faArrowDown);
+    library.add(faArrowUp);
+
+    this.iconArrowUp = icon(faArrowUp, {
+      classes: ["icon"],
+    });
+    this.iconArrowDown = icon(faArrowDown, {
+      classes: ["icon"],
+    });
   }
 
   loadConfig(config) {
@@ -62,6 +105,21 @@ export class FileTreeDiffElement extends LitElement {
     return `${currentOrigin}${currentPath}`;
   }
 
+  renderArrows() {
+    if (!this.docDiffEnabled) {
+      return nothing;
+    }
+    console.log("chunkIndex", this.chunkIndex);
+    console.log("chunks.length", this.chunks.length);
+    console.log("chunks", this.chunks);
+
+    return html`
+      <span>${this.chunkIndex + 1 || 0} of ${this.chunks.length || 0}</span>
+      <span @click=${this.previousChunk}> ${this.iconArrowUp.node[0]} </span>
+      <span @click=${this.nextChunk}> ${this.iconArrowDown.node[0]} </span>
+    `;
+  }
+
   renderDocDiff() {
     if (objectPath.get(this.config, "addons.doc_diff.enabled", false)) {
       return html`
@@ -73,9 +131,54 @@ export class FileTreeDiffElement extends LitElement {
           />
           Show diff
         </label>
+        ${this.renderArrows()}
       `;
     }
     return nothing;
+  }
+
+  previousChunk() {
+    if (!this.chunks.length) {
+      return;
+    }
+    if (this.chunkIndex === null) {
+      this.chunkIndex = 0;
+    } else if (this.chunkIndex != 0) {
+      this.chunkIndex -= 1;
+    }
+
+    const chunk = this.chunks[this.chunkIndex];
+    this.scrollToChunk(chunk);
+  }
+
+  nextChunk() {
+    if (!this.chunks.length) {
+      return;
+    }
+    if (this.chunkIndex === null) {
+      this.chunkIndex = 0;
+    } else if (this.chunkIndex != this.chunks.length - 1) {
+      this.chunkIndex += 1;
+    }
+
+    const chunk = this.chunks[this.chunkIndex];
+    this.scrollToChunk(chunk);
+  }
+
+  scrollToChunk(chunk) {
+    for (const elem of document.querySelectorAll(".doc-diff-chunk-selected")) {
+      elem.classList.remove("doc-diff-chunk-selected");
+    }
+
+    chunk.classList.add("doc-diff-chunk-selected");
+
+    console.log("chunk offset", chunk.offsetTop);
+    globalThis.scrollTo({
+      top:
+        chunk.getBoundingClientRect().top -
+        window.innerHeight * SCROLL_OFFSET_Y, // Y-axis
+      behavior: "smooth",
+    });
   }
 
   render() {
@@ -132,6 +235,17 @@ export class FileTreeDiffElement extends LitElement {
     this.docDiffEnabled = false;
   };
 
+  _handleRootDOMChanged = (event) => {
+    // Update the list of chunks when the DOM changes
+    this.chunks = document.querySelectorAll(this.chunkSelector);
+    if (this.chunkIndex === null || this.chunkIndex === 0) {
+      this.chunkIndex = 0;
+      if (this.chunks.length) {
+        this.scrollToChunk(this.chunks[0]);
+      }
+    }
+  };
+
   connectedCallback() {
     super.connectedCallback();
     document.addEventListener(
@@ -141,6 +255,10 @@ export class FileTreeDiffElement extends LitElement {
     document.addEventListener(
       EVENT_READTHEDOCS_DOCDIFF_HIDE,
       this._handleDocDiffHide,
+    );
+    document.addEventListener(
+      EVENT_READTHEDOCS_ROOT_DOM_CHANGED,
+      this._handleRootDOMChanged,
     );
   }
 
@@ -152,6 +270,10 @@ export class FileTreeDiffElement extends LitElement {
     document.removeEventListener(
       EVENT_READTHEDOCS_DOCDIFF_HIDE,
       this._handleDocDiffHide,
+    );
+    document.removeEventListener(
+      EVENT_READTHEDOCS_ROOT_DOM_CHANGED,
+      this._handleRootDOMChanged,
     );
     super.disconnectedCallback();
   }

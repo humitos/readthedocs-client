@@ -57,3 +57,13 @@
 :host > div > div > label > input {
   margin: 0;
 }
+
+:host > div > div > span {
+  display: flex;
+  width: 0.5rem;
+  cursor: pointer;
+}
+
+:host > div > div > span:nth-child(2) {
+  min-width: 2.5rem;
+}
